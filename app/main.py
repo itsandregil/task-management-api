@@ -15,6 +15,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="Task Management API",
     description="A REST API for managing personal projects and tasks.",
+    lifespan=lifespan,
 )
 
 

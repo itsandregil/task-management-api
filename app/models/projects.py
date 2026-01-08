@@ -9,11 +9,3 @@ class Project(SQLModel, table=True):
     name: str
     description: str | None = None
     created_at: datetime = Field(default_factory=datetime.now(timezone.utc))
-
-
-class Task(SQLModel, table=True):
-    pass
-
-
-class User(SQLModel, table=True):
-    pass

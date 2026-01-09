@@ -8,10 +8,25 @@ if TYPE_CHECKING:
     from .projects import Project
 
 
-class User(SQLModel, table=True):
-    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+class UserBase(SQLModel):
     full_name: str | None = Field(default=None, max_length=255)
     email: EmailStr = Field(unique=True, index=True, max_length=255)
-    hashed_password: str
 
+
+class UserCreate(UserBase):
+    password: str = Field(min_length=8, max_length=50)
+
+
+class UserPublic(UserBase):
+    id: uuid.UUID
+
+
+class UserUpdateMe(UserBase):
+    full_name: str | None = Field(default=None, max_length=255)
+    email: EmailStr | None = Field(default=None, max_length=255)
+
+
+class User(UserBase, table=True):
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    hashed_password: str
     projects: list["Project"] | None = Relationship(back_populates="user")

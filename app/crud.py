@@ -13,7 +13,7 @@ def get_user_by_email(*, session: Session, email: str) -> User | None:
 
 def authenticate(*, session: Session, email: str, password: str) -> User | None:
     """Authenticate if the user exists and credentials are valid"""
-    user = get_user_by_email(session, email)
+    user = get_user_by_email(session=session, email=email)
     if not user:
         return None
     if not verify_password_hash(password, user.hashed_password):

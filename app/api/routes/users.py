@@ -15,5 +15,5 @@ def create_user(session: SessionDep, user_in: UserCreate):
             status_code=400,
             detail="The user with this email already exists",
         )
-    user = crud.create_user(session=session, user_create=user)
+    user = crud.create_user(session=session, user_create=user_in)
     return user

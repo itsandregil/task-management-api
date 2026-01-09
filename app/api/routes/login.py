@@ -1,5 +1,3 @@
-"""Authentication endpoints"""
-
 from datetime import timedelta
 from typing import Annotated
 
@@ -8,9 +6,10 @@ from fastapi.security import OAuth2PasswordRequestForm
 
 from app import crud
 from app.api.deps import SessionDep
+from app.core.config import settings
 from app.core.security import create_access_token
 
-router = APIRouter()
+router = APIRouter(tags=["auth"])
 
 
 @router.post("/login/access-token")
@@ -28,6 +27,6 @@ def login_access_token(
             details="Incorrect username or password",
             headers={"WWW-Authenticated": "Bearer"},
         )
-    access_token_expire = timedelta(minutes=15)  # TODO: create this with settings
+    access_token_expire = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token({"sub": user.email}, access_token_expire)
     return {"access_token": access_token, "token_type": "bearer"}

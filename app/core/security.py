@@ -3,7 +3,8 @@ from datetime import datetime, timedelta, timezone
 import jwt
 from pwdlib import PasswordHash
 
-SECRET_KEY = "123456"  # TODO: Get this from config
+from app.core.config import settings
+
 ALGORITHM = "HS256"
 
 password_hash = PasswordHash.recommended()
@@ -24,5 +25,5 @@ def create_access_token(data: dict, expires_delta: timedelta | None):
     else:
         expire = datetime.now(timezone.utc) + timedelta(minutes=15)
     payload.update({"exp": expire})
-    jwt_encoded = jwt.encode(payload, SECRET_KEY, ALGORITHM)
+    jwt_encoded = jwt.encode(payload, settings.SECRET_KEY, ALGORITHM)
     return jwt_encoded

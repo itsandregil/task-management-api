@@ -1,11 +1,10 @@
 import uuid
-from typing import TYPE_CHECKING
 
 from pydantic import EmailStr
 from sqlmodel import Field, Relationship, SQLModel
 
-if TYPE_CHECKING:
-    from .projects import Project
+from .projects import ProjectUserLink
+from .tasks import Task, TaskUserLink
 
 
 class UserBase(SQLModel):
@@ -29,4 +28,8 @@ class UserUpdateMe(UserBase):
 class User(UserBase, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     hashed_password: str
-    projects: list["Project"] | None = Relationship(back_populates="user")
+
+    tasks: list["Task"] = Relationship(
+        back_populates="members", link_model=TaskUserLink
+    )
+    project_links: list[ProjectUserLink] = Relationship(back_populates="user")

@@ -19,6 +19,11 @@ class TaskPriority(str, Enum):
     HIGH = "high"
 
 
+class TaskUserLink(SQLModel, table=True):
+    user_id: uuid.UUID = Field(default=None, foreign_key="user.id", primary_key=True)
+    task_id: uuid.UUID = Field(default=None, foreign_key="user.id", primary_key=True)
+
+
 class Task(SQLModel, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     title: str
@@ -29,8 +34,10 @@ class Task(SQLModel, table=True):
     created_at: datetime | None = Field(
         default_factory=lambda: datetime.now(timezone.utc)
     )
-
     project_id: uuid.UUID = Field(default=None, foreign_key="project.id")
-    user_id: uuid.UUID = Field(default=None, foreign_key="user.id")
 
     project: Project | None = Relationship(back_populates="tasks")
+    users: list[TaskUserLink] = Relationship(
+        back_populates="tasks",
+        link_model=TaskUserLink,
+    )

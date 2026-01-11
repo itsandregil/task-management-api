@@ -4,10 +4,20 @@ from typing import TYPE_CHECKING
 
 from sqlmodel import Field, Relationship, SQLModel
 
-from .users import User
-
 if TYPE_CHECKING:
     from .tasks import Task
+    from .users import User
+
+
+class ProjectUserLink(SQLModel, table=True):
+    user_id: uuid.UUID = Field(default=None, foreign_key="user.id", primary_key=True)
+    project_id: uuid.UUID = Field(
+        default=None, foreign_key="project.id", primary_key=True
+    )
+    is_owner: bool = False
+
+    user: "User" = Relationship(back_populates="project_links")
+    project: "Project" = Relationship(back_populates="user_links")
 
 
 class Project(SQLModel, table=True):
@@ -21,4 +31,4 @@ class Project(SQLModel, table=True):
     user_id: uuid.UUID = Field(default=None, foreign_key="user.id")
 
     tasks: list["Task"] | None = Relationship(back_populates="project")
-    user: User = Relationship(back_populates="projects")
+    user_links: list[ProjectUserLink] = Relationship(back_populates="project")

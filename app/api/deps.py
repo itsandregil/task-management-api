@@ -1,9 +1,3 @@
-"""Dependecies to be injected within API endpoints"""
-
-# TODO: create the oauth2 scheme for a password "flow"
-# TODO: create the dependency to get the authenticated user
-# TODO: use the oauth form to get the client "username" and "password" as a dependency in the path operation
-
 from typing import Annotated, Generator
 
 import jwt

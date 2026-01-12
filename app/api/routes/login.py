@@ -29,5 +29,5 @@ def login_access_token(
             headers={"WWW-Authenticated": "Bearer"},
         )
     access_token_expire = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_access_token({"sub": user.email}, access_token_expire)
+    access_token = create_access_token({"sub": str(user.id)}, access_token_expire)
     return Token(access_token=access_token, token_type="bearer")

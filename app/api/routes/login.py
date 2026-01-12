@@ -8,6 +8,7 @@ from app import crud
 from app.api.deps import SessionDep
 from app.core.config import settings
 from app.core.security import create_access_token
+from app.models.utils import Token
 
 router = APIRouter(tags=["auth"])
 
@@ -15,7 +16,7 @@ router = APIRouter(tags=["auth"])
 @router.post("/login/access-token")
 def login_access_token(
     session: SessionDep, form_data: Annotated[OAuth2PasswordRequestForm, Depends()]
-):
+) -> Token:
     user = crud.authenticate(
         session=session,
         email=form_data.username,
@@ -29,4 +30,4 @@ def login_access_token(
         )
     access_token_expire = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token({"sub": user.email}, access_token_expire)
-    return {"access_token": access_token, "token_type": "bearer"}
+    return Token(access_token=access_token, token_type="bearer")

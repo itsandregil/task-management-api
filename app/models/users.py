@@ -29,7 +29,5 @@ class User(UserBase, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     hashed_password: str
 
-    tasks: list["Task"] = Relationship(
-        back_populates="members", link_model=TaskUserLink
-    )
+    tasks: list["Task"] = Relationship(back_populates="users", link_model=TaskUserLink)
     project_links: list[ProjectUserLink] = Relationship(back_populates="user")

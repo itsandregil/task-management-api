@@ -1,4 +1,5 @@
 from typing import Annotated, Generator
+from uuid import UUID
 
 import jwt
 from fastapi import Depends, HTTPException, status
@@ -10,6 +11,7 @@ from sqlmodel import Session
 from app.core.config import settings
 from app.core.db import engine
 from app.core.security import ALGORITHM
+from app.models.projects import Project, ProjectUserLink
 from app.models.users import User
 from app.models.utils import TokenPayload
 
@@ -42,3 +44,23 @@ def get_current_user(session: SessionDep, token: TokenDep) -> User:
 
 
 CurrentUserDep = Annotated[User, Depends(get_current_user)]
+
+
+def check_is_owner(
+    project_id: UUID, session: SessionDep, user: CurrentUserDep
+) -> Project:
+    link = session.get(ProjectUserLink, (user.id, project_id))
+    if not link:
+        raise HTTPException(
+            status.HTTP_404_NOT_FOUND,
+            detail="Project not found",
+        )
+    if not link.is_owner:
+        raise HTTPException(
+            status.HTTP_403_FORBIDDEN,
+            detail="Not enough permissions",
+        )
+    return link.project
+
+
+OwnerDep = Annotated[Project, Depends(check_is_owner)]

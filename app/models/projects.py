@@ -20,15 +20,32 @@ class ProjectUserLink(SQLModel, table=True):
     project: "Project" = Relationship(back_populates="user_links")
 
 
-class Project(SQLModel, table=True):
+class ProjectBase(SQLModel):
+    name: str = Field(min_length=1, max_length=50)
+    description: str | None = Field(default=None, max_length=255)
+
+
+class ProjectCreate(ProjectBase): ...
+
+
+class ProjectUpdate(SQLModel):
+    name: str | None = Field(default=None, min_length=1, max_length=50)
+    description: str | None = Field(default=None, max_length=255)
+
+
+class ProjectPublic(ProjectBase):
+    id: uuid.UUID
+    created_at: datetime
+
+
+class Project(ProjectBase, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
-    name: str
-    description: str | None = None
     created_at: datetime | None = Field(
         default_factory=lambda: datetime.now(timezone.utc)
     )
 
-    user_id: uuid.UUID = Field(default=None, foreign_key="user.id")
-
     tasks: list["Task"] | None = Relationship(back_populates="project")
-    user_links: list[ProjectUserLink] = Relationship(back_populates="project")
+    user_links: list[ProjectUserLink] = Relationship(
+        back_populates="project",
+        cascade_delete=True,
+    )

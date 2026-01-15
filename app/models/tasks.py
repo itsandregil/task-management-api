@@ -28,17 +28,42 @@ class TaskUserLink(SQLModel, table=True):
     task_id: uuid.UUID = Field(default=None, foreign_key="task.id", primary_key=True)
 
 
+class TaskBase(SQLModel):
+    title: str = Field(min_length=1, max_length=255)
+    description: str | None = Field(default=None, max_length=255)
+
+
+class TaskPublic(TaskBase):
+    id: uuid.UUID
+    status: TaskStatus
+    priority: TaskPriority
+    due_date: datetime
+    created_at: datetime
+
+
+class TaskCreate(TaskBase): ...
+
+
+class TaskUpdate(SQLModel):
+    title: str | None = Field(min_length=1, max_length=255)
+    description: str | None = Field(default=None, max_length=255)
+    status: TaskStatus | None = None
+    priority: TaskPriority | None = None
+    due_date: datetime | None = None
+
+
 class Task(SQLModel, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
-    title: str
-    description: str | None = Field(default=None, max_length=255)
     status: TaskStatus = Field(default=TaskStatus.TODO)
     priority: TaskPriority | None = Field(default=None)
     due_date: datetime | None = Field(default=None)
+
     created_at: datetime | None = Field(
         default_factory=lambda: datetime.now(timezone.utc)
     )
-    project_id: uuid.UUID = Field(default=None, foreign_key="project.id")
+
+    creator_id: uuid.UUID = Field(nullable=False, foreign_key="user.id")
+    project_id: uuid.UUID | None = Field(default=None, foreign_key="project.id")
 
     project: Project | None = Relationship(back_populates="tasks")
     users: list["User"] = Relationship(

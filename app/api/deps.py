@@ -65,7 +65,9 @@ def get_project_if_owner(
     return link.project
 
 
-def get_task_if_creator(task_id: UUID, session: Session, user: CurrentUserDep) -> Task:
+def get_task_if_creator(
+    task_id: UUID, session: SessionDep, user: CurrentUserDep
+) -> Task:
     task = session.get(Task, task_id)
     if not task:
         raise HTTPException(

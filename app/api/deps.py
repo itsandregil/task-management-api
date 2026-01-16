@@ -8,10 +8,12 @@ from jwt import InvalidTokenError
 from pydantic import ValidationError
 from sqlmodel import Session
 
+from app import domain
 from app.core.config import settings
 from app.core.db import engine
 from app.core.security import ALGORITHM
 from app.models.projects import Project, ProjectUserLink
+from app.models.tasks import Task
 from app.models.users import User
 from app.models.utils import TokenPayload
 
@@ -46,7 +48,7 @@ def get_current_user(session: SessionDep, token: TokenDep) -> User:
 CurrentUserDep = Annotated[User, Depends(get_current_user)]
 
 
-def check_is_owner(
+def get_project_if_owner(
     project_id: UUID, session: SessionDep, user: CurrentUserDep
 ) -> Project:
     link = session.get(ProjectUserLink, (user.id, project_id))
@@ -63,4 +65,20 @@ def check_is_owner(
     return link.project
 
 
-OwnerDep = Annotated[Project, Depends(check_is_owner)]
+def get_task_if_creator(task_id: UUID, session: Session, user: CurrentUserDep) -> Task:
+    task = session.get(Task, task_id)
+    if not task:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Task not found",
+        )
+    if not domain.is_task_creator(task=task, user_id=user.id):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Cannot update this task",
+        )
+    return task
+
+
+OwnerDep = Annotated[Project, Depends(get_project_if_owner)]
+CreatorDep = Annotated[Task, Depends(get_task_if_creator)]

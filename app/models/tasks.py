@@ -31,13 +31,13 @@ class TaskUserLink(SQLModel, table=True):
 class TaskBase(SQLModel):
     title: str = Field(min_length=1, max_length=255)
     description: str | None = Field(default=None, max_length=255)
+    priority: TaskPriority | None
+    due_date: datetime | None
 
 
 class TaskPublic(TaskBase):
     id: uuid.UUID
     status: TaskStatus
-    priority: TaskPriority
-    due_date: datetime
     created_at: datetime
 
 
@@ -66,7 +66,7 @@ class Task(SQLModel, table=True):
     project_id: uuid.UUID | None = Field(default=None, foreign_key="project.id")
 
     project: Project | None = Relationship(back_populates="tasks")
-    users: list["User"] = Relationship(
+    assignees: list["User"] = Relationship(
         back_populates="tasks",
         link_model=TaskUserLink,
     )

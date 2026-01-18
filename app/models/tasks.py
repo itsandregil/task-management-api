@@ -31,8 +31,8 @@ class TaskUserLink(SQLModel, table=True):
 class TaskBase(SQLModel):
     title: str = Field(min_length=1, max_length=255)
     description: str | None = Field(default=None, max_length=255)
-    priority: TaskPriority | None
-    due_date: datetime | None
+    priority: TaskPriority | None = Field(default=None)
+    due_date: datetime | None = Field(default=None)
 
 
 class TaskPublic(TaskBase):
@@ -41,22 +41,21 @@ class TaskPublic(TaskBase):
     created_at: datetime
 
 
-class TaskCreate(TaskBase): ...
+class TaskCreate(TaskBase):
+    pass
 
 
 class TaskUpdate(SQLModel):
-    title: str | None = Field(min_length=1, max_length=255)
+    title: str | None = Field(default=None, min_length=1, max_length=255)
     description: str | None = Field(default=None, max_length=255)
     status: TaskStatus | None = None
     priority: TaskPriority | None = None
     due_date: datetime | None = None
 
 
-class Task(SQLModel, table=True):
+class Task(TaskBase, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     status: TaskStatus = Field(default=TaskStatus.TODO)
-    priority: TaskPriority | None = Field(default=None)
-    due_date: datetime | None = Field(default=None)
 
     created_at: datetime | None = Field(
         default_factory=lambda: datetime.now(timezone.utc)

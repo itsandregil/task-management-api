@@ -25,7 +25,7 @@ def login_access_token(
     if not user:
         raise HTTPException(
             status.HTTP_401_UNAUTHORIZED,
-            details="Incorrect username or password",
+            detail="Incorrect username or password",
             headers={"WWW-Authenticated": "Bearer"},
         )
     access_token_expire = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)

@@ -1,2 +1,8 @@
-"""Params for filtering and sorting"""
-# TODO: Implement params for sorting and filtering tasks
+"""Params for filtering and sorting and pagination"""
+
+from pydantic import BaseModel, Field
+
+
+class PaginationParams(BaseModel):
+    offset: int = Field(0, ge=0)
+    limit: int = Field(100, ge=0, le=100)

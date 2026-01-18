@@ -1,16 +1,29 @@
-from fastapi import APIRouter, status
+from typing import Annotated
+
+from fastapi import APIRouter, Depends, status
+from sqlmodel import select
 
 from app.api.deps import CreatorDep, CurrentUserDep, SessionDep
+from app.api.params import PaginationParams
 from app.models.tasks import Task, TaskCreate, TaskPublic, TaskUpdate, TaskUserLink
 from app.models.utils import Message
 
 router = APIRouter(prefix="/tasks", tags=["tasks"])
 
 
-@router.get("/")
-def get_all_tasks():
+@router.get("/", response_model=list[TaskPublic])
+def get_all_tasks(
+    session: SessionDep, user: CurrentUserDep, p: Annotated[PaginationParams, Depends()]
+):
     """Get all personal tasks"""
-    pass
+    statement = (
+        select(Task)
+        .where((Task.creator_id == user.id) & (Task.project_id.is_(None)))
+        .offset(p.offset)
+        .limit(p.limit)
+    )
+    tasks = session.exec(statement).all()
+    return tasks
 
 
 @router.post("/", response_model=TaskPublic, status_code=status.HTTP_201_CREATED)

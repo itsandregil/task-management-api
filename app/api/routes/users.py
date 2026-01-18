@@ -28,7 +28,7 @@ def create_user(session: SessionDep, user_in: UserCreate):
     return user
 
 
-@router.post("/me/password")
+@router.put("/me/password")
 def update_user_password(
     session: SessionDep, user: CurrentUserDep, body: PasswordUpdate
 ) -> Message:

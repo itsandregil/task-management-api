@@ -1,6 +1,7 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, status
+from sqlalchemy import column
 from sqlmodel import select
 
 from app.api.deps import CreatorDep, CurrentUserDep, SessionDep
@@ -18,7 +19,7 @@ def get_all_tasks(
     """Get all personal tasks"""
     statement = (
         select(Task)
-        .where((Task.creator_id == user.id) & (Task.project_id.is_(None)))
+        .where(Task.creator_id == user.id, column("project_id").is_(None))
         .offset(p.offset)
         .limit(p.limit)
     )

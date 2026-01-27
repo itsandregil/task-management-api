@@ -10,6 +10,7 @@ from app.models.projects import (
     ProjectUpdate,
     ProjectUserLink,
 )
+from app.models.tasks import ProjectWithTasks
 from app.models.utils import Message
 
 router = APIRouter(prefix="/projects", tags=["projects"])
@@ -17,13 +18,10 @@ router = APIRouter(prefix="/projects", tags=["projects"])
 
 @router.get("/", response_model=list[ProjectPublic])
 def get_projects(user: CurrentUserDep):
-    projects = []
-    for link in user.project_links:
-        projects.append(link.project)
-    return projects
+    return [link.project for link in user.project_links]
 
 
-@router.get("/{project_id}", response_model=ProjectPublic)
+@router.get("/{project_id}", response_model=ProjectWithTasks)
 def get_project(project_id: UUID, session: SessionDep):
     project = session.get(Project, project_id)
     if not project:

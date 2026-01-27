@@ -1,7 +1,9 @@
+from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Body, HTTPException, status
 
+from app import crud
 from app.api.deps import CurrentUserDep, OwnerDep, SessionDep
 from app.models.projects import (
     Project,
@@ -22,11 +24,14 @@ def get_projects(user: CurrentUserDep):
 
 
 @router.get("/{project_id}", response_model=ProjectWithTasks)
-def get_project(project_id: UUID, session: SessionDep):
-    project = session.get(Project, project_id)
-    if not project:
-        raise HTTPException(status_code=404, detail="Project not found")
-    return project
+def get_project(project_id: UUID, session: SessionDep, user: CurrentUserDep):
+    link = session.get(ProjectUserLink, {"user_id": user.id, "project_id": project_id})
+    if not link:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Project not found",
+        )
+    return link.project
 
 
 @router.post("/", response_model=ProjectPublic)
@@ -59,3 +64,21 @@ def delete_project(session: SessionDep, project: OwnerDep) -> Message:
     session.delete(project)
     session.commit()
     return Message(message="Project deleted")
+
+
+# TODO: Make this sending invitation via email using google's smtp server (like IRL)
+@router.post("/{project_id}/invite")
+def add_new_member(
+    session: SessionDep, project: OwnerDep, member_email: Annotated[str, Body()]
+) -> Message:
+    user = crud.get_user_by_email(session=session, email=member_email)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found.",
+        )
+    new_member = ProjectUserLink(project_id=project.id, user_id=user.id)
+    session.add(new_member)
+    session.commit()
+    session.refresh(new_member)
+    return Message(message="Member added correctly")

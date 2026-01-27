@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 
 from sqlmodel import Field, Relationship, SQLModel
 
-from .projects import Project
+from .projects import Project, ProjectPublic
 
 if TYPE_CHECKING:
     from .users import User
@@ -23,11 +23,6 @@ class TaskPriority(str, Enum):
     HIGH = "high"
 
 
-class TaskUserLink(SQLModel, table=True):
-    user_id: uuid.UUID = Field(default=None, foreign_key="user.id", primary_key=True)
-    task_id: uuid.UUID = Field(default=None, foreign_key="task.id", primary_key=True)
-
-
 class TaskBase(SQLModel):
     title: str = Field(min_length=1, max_length=255)
     description: str | None = Field(default=None, max_length=255)
@@ -42,7 +37,7 @@ class TaskPublic(TaskBase):
 
 
 class TaskCreate(TaskBase):
-    pass
+    project_id: uuid.UUID | None = None
 
 
 class TaskUpdate(SQLModel):
@@ -65,7 +60,8 @@ class Task(TaskBase, table=True):
     project_id: uuid.UUID | None = Field(default=None, foreign_key="project.id")
 
     project: Project | None = Relationship(back_populates="tasks")
-    assignees: list["User"] = Relationship(
-        back_populates="tasks",
-        link_model=TaskUserLink,
-    )
+    creator: "User" = Relationship(back_populates="tasks")
+
+
+class ProjectWithTasks(ProjectPublic):
+    tasks: list[TaskPublic] = []

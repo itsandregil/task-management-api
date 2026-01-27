@@ -4,7 +4,7 @@ from pydantic import EmailStr
 from sqlmodel import Field, Relationship, SQLModel
 
 from .projects import ProjectUserLink
-from .tasks import Task, TaskUserLink
+from .tasks import Task
 
 
 class UserBase(SQLModel):
@@ -29,8 +29,5 @@ class User(UserBase, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     hashed_password: str
 
-    tasks: list["Task"] = Relationship(
-        back_populates="assignees",
-        link_model=TaskUserLink,
-    )
+    tasks: list[Task] = Relationship(back_populates="creator")
     project_links: list[ProjectUserLink] = Relationship(back_populates="user")

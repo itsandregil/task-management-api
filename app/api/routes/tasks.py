@@ -6,7 +6,7 @@ from sqlmodel import select
 
 from app.api.deps import CreatorDep, CurrentUserDep, SessionDep
 from app.api.params import PaginationParams
-from app.models.tasks import Task, TaskCreate, TaskPublic, TaskUpdate, TaskUserLink
+from app.models.tasks import Task, TaskCreate, TaskPublic, TaskUpdate
 from app.models.utils import Message
 
 router = APIRouter(prefix="/tasks", tags=["tasks"])
@@ -30,15 +30,11 @@ def get_all_tasks(
 @router.post("/", response_model=TaskPublic, status_code=status.HTTP_201_CREATED)
 def create_new_task(session: SessionDep, user: CurrentUserDep, task_in: TaskCreate):
     """Create a new personal task"""
-    task = Task(**task_in.model_dump(), creator_id=user.id, project_id=None)
-    session.add(task)
-    session.flush()  # Update DB but keep transaction open to use the task id
-
-    link = TaskUserLink(user_id=user.id, task_id=task.id)
-    session.add(link)
+    new_task = Task.model_validate(task_in, update={"creator_id": user.id})
+    session.add(new_task)
     session.commit()
-    session.refresh(task)
-    return task
+    session.refresh(new_task)
+    return new_task
 
 
 @router.patch("/{task_id}", response_model=TaskPublic)

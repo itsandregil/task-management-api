@@ -8,7 +8,6 @@ from jwt import InvalidTokenError
 from pydantic import ValidationError
 from sqlmodel import Session
 
-from app import domain
 from app.core.config import settings
 from app.core.db import engine
 from app.core.security import ALGORITHM
@@ -74,7 +73,7 @@ def get_task_if_creator(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Task not found",
         )
-    if not domain.is_task_creator(task=task, user_id=user.id):
+    if task.creator_id != user.id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Cannot update this task",

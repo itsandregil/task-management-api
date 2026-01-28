@@ -46,6 +46,7 @@ class TaskUpdate(SQLModel):
     status: TaskStatus | None = None
     priority: TaskPriority | None = None
     due_date: datetime | None = None
+    project_id: uuid.UUID | None = None
 
 
 class Task(TaskBase, table=True):

@@ -5,7 +5,7 @@ from sqlalchemy import column
 from sqlmodel import select
 
 from app.api.deps import CreatorDep, CurrentUserDep, SessionDep
-from app.api.params import PaginationParams
+from app.api.params import PaginationParams, TasksFilters
 from app.models.tasks import Task, TaskCreate, TaskPublic, TaskUpdate
 from app.models.utils import Message
 
@@ -14,16 +14,24 @@ router = APIRouter(prefix="/tasks", tags=["tasks"])
 
 @router.get("/", response_model=list[TaskPublic])
 def get_all_tasks(
-    session: SessionDep, user: CurrentUserDep, p: Annotated[PaginationParams, Depends()]
+    session: SessionDep,
+    user: CurrentUserDep,
+    p: Annotated[PaginationParams, Depends()],
+    filters: Annotated[TasksFilters, Depends()],
 ):
     """Get all personal tasks"""
-    statement = (
-        select(Task)
-        .where(Task.creator_id == user.id, column("project_id").is_(None))
-        .offset(p.offset)
-        .limit(p.limit)
+    statement = select(Task).where(
+        Task.creator_id == user.id, column("project_id").is_(None)
     )
-    tasks = session.exec(statement).all()
+
+    if filters.status is not None:
+        statement = statement.where(Task.status == filters.status)
+
+    if filters.priority is not None:
+        statement = statement.where(Task.priority == filters.priority)
+
+    statement = statement.offset(p.offset).limit(p.limit)
+    tasks = session.exec(statement)
     return tasks
 
 

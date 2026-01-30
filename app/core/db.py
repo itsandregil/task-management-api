@@ -1,12 +1,5 @@
-from sqlmodel import SQLModel, create_engine
+from sqlmodel import create_engine
 
-from app.models import *  # noqa
+from app.core.config import settings
 
-sqlite_file_name = "local_database.db"
-sqlite_url = f"sqlite:///{sqlite_file_name}"
-
-engine = create_engine(sqlite_url, echo=True)
-
-
-def create_db_and_tables() -> None:
-    SQLModel.metadata.create_all(engine)
+engine = create_engine(str(settings.POSTGRES_DATABASE_URI))

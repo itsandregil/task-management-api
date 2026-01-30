@@ -4,8 +4,6 @@ A backend-only Task Management API inspired by tools like Trello and Todoist.
 
 Built to practice and demonstrate backend fundamentals such as REST API design, authentication, and relational database modeling.
 
----
-
 ## Tech Stack
 
 - **Python**
@@ -14,8 +12,6 @@ Built to practice and demonstrate backend fundamentals such as REST API design, 
 - **SQLModel**
 - **Alembic**
 - **Pytest**
-
----
 
 ## Features
 
@@ -40,8 +36,6 @@ Built to practice and demonstrate backend fundamentals such as REST API design, 
 - Background jobs for notifications
 - Rate limiting and caching
 - Onboarding and password reset via email
-
----
 
 ## Running the project
 

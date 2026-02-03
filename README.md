@@ -22,9 +22,7 @@ Built to practice and demonstrate backend fundamentals such as REST API design, 
   - Member 
 
 ### Database Design
-- Users
-- Projects
-- Tasks
+[![task_management_api_dark.png](https://i.postimg.cc/L5shBM6x/task_management_api_dark.png)](https://postimg.cc/1nL9s2FF)
 
 ### REST API Design
 - Proper HTTP methods and status codes

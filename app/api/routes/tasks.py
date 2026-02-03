@@ -12,7 +12,7 @@ from app.models.utils import Message
 router = APIRouter(prefix="/tasks", tags=["tasks"])
 
 
-@router.get("/", response_model=list[TaskPublic])
+@router.get("", response_model=list[TaskPublic])
 def get_all_tasks(
     session: SessionDep,
     user: CurrentUserDep,
@@ -35,7 +35,7 @@ def get_all_tasks(
     return tasks
 
 
-@router.post("/", response_model=TaskPublic, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=TaskPublic, status_code=status.HTTP_201_CREATED)
 def create_new_task(session: SessionDep, user: CurrentUserDep, task_in: TaskCreate):
     """Create a new personal task"""
     new_task = Task.model_validate(task_in, update={"creator_id": user.id})

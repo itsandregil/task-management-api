@@ -18,7 +18,7 @@ from app.models.utils import Message
 router = APIRouter(prefix="/projects", tags=["projects"])
 
 
-@router.get("/", response_model=list[ProjectPublic])
+@router.get("", response_model=list[ProjectPublic])
 def get_projects(user: CurrentUserDep):
     return [link.project for link in user.project_links]
 
@@ -34,7 +34,7 @@ def get_project(project_id: UUID, session: SessionDep, user: CurrentUserDep):
     return link.project
 
 
-@router.post("/", response_model=ProjectPublic)
+@router.post("", response_model=ProjectPublic)
 def create_new_project(
     session: SessionDep, user: CurrentUserDep, project_data: ProjectCreate
 ):
